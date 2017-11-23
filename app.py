@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g
+from flask import Flask, jsonify, request, g, url_for
 import sqlite3
 import os
 
@@ -16,11 +16,11 @@ DATABASE = os.path.dirname(os.path.realpath(__file__)) + '/final.db'
 #     if db is not None:
 #         db.close()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 @app.route("/")
 def hello():
-    return "Hello World!"
+    return app.send_static_file('index.html')
 
 
 @app.route("/search")
@@ -38,7 +38,7 @@ def search():
 	# query database and try to match
 
 	# 1=1 is only used to introduce the WHERE
-	query = "SELECT id, first, last, city, address, specialty FROM dentists WHERE 1=1"
+	query = "SELECT id, first, last, address, city, specialty FROM dentists WHERE 1=1"
 	results = []
 
 	# basic search includes name and city only

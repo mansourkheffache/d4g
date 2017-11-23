@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>PERCCOM TeamOslo</title>
+		<link rel="stylesheet" href="css/milligram.min.css?2">
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+		<!-- <script type="text/javascript" src="js/main.js?5"></script> -->
+		<script>
+
+			$(document).ready(function(){
+				// do something
+				$("#searchButton").click(function(){
+					search();
+				});
+			});
+
+			function search(){
+			   var name = $('#name').val();
+			   var city = $('#city').val();
+			    $.get("/search?name="+name+"&city="+city, function(data){
+			    	var rows = '';
+			        for (var i = 0; i < data.length; ++i) {
+			        	entry = '';
+			        	entry += '<td>' + data[i].first_name + ' ' +  data[i].last_name + '</td>';
+			        	entry += '<td>' + data[i].address + ' , ' +  data[i].city + '</td>';
+			        	rows += '<tr>' + entry + '</tr>';
+			        }
+
+			        $('#results-count').html('<b>'+data.length + '</b> Dentists found')
+			        $('#listing tbody').html(rows);
+			    });
+			}
+
+		</script>
+	</head>
+	<body>
+		<main class="wrapper">
+			<nav class="navigation">
+				<section class="container">
+					<div class="navigation-title" style="font-size: 22px;"><img src="img/logo.png" style="margin: 8px 12px; float: left;" />Oslo Dentists</div>
+				</section>
+			</nav>
+
+				<section class="container" id="searchContainer">
+					<fieldset>
+						<input type="text" placeholder="Name" id="name" />
+						<input type="text" placeholder="City" id="city" />
+
+						<div id="searchButton"><input class="button-primary" type="button" value="Search" name="Search"></div>
+					 </fieldset>
+					<div id="results-count">
+						<b>0</b> Dentists Found
+					</div>
+				  	<table id="listing">
+						<thead>
+						  <tr>
+							<th style="width: 30%">Name</th>
+							<th style="width: 70%">Address</th>
+						  </tr>
+						</thead>
+						<tbody>
+
+						</tbody>
+					 </table>
+			</section>
+		</main>
+	</body>
+</html>
