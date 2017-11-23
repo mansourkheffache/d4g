@@ -96,7 +96,6 @@ def search():
 
 	return jsonify(clean_results)
 
-
 @app.route("/view/<id>")
 def view(id):
 
@@ -105,6 +104,8 @@ def view(id):
 	# don't forget to pass the image as well, kthxbye
 
 	fields = ['id', 'first_name', 'last_name', 'email', 'gender', 'address', 'city', 'phone', 'specialty', 'mon1', 'mon2', 'tue1', 'tue2', 'wed1', 'wed2', 'thu1', 'thu2', 'fri1', 'fri2']
+
+	days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
 	query = "SELECT * FROM dentists WHERE id=" + id 
 	print(query)
@@ -119,12 +120,27 @@ def view(id):
 		# only take 1st entry
 		results = results[0] if len(results) > 0 else None
 
-		dentist_profile = dict(zip(fields, results)) if (results is not None) else None
-		
 		cur.close()
 
+	hour_str = '<table>'
+
+	dentist_profile = dict(zip(fields, results))
+
+	if (results is not None):
+ 		for i in range (0, 10, 2):
+			ind1 = 9+i
+			ind2 = 10+i
+			if results[ind1] != '' and results[ind2] != '' and results[ind1] is not None and results[ind2] is not None:  
+				hour_str += '<tr><td><b>' + days[i/2] + '</b></td><td>' + str( int( results[ind1] / 100 )) + ':00' + '</td><td>-</td><td>' + str( int( results[ind2] / 100 )) + ':00</td></tr>'
+			else:
+				hour_str += '<tr><td><b>' + days[i/2] + '</b></td><td>N/A</td><td></td><td></td></tr>'
+		
+		dentist_profile['hours'] = hour_str + '</table>'
+
+	else:
+		dentist_profile = None
 
 	return jsonify(dentist_profile)
 
 if __name__ == "__main__":
-    app.run()
+	app.run()
