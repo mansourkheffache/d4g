@@ -26,11 +26,16 @@
 
 						var profile = '';
 						profile += '<a href="#"><div id="profile-back">< Back</div></a>'
-						profile += '<div id="profile-pic"><img src="/static/img/' + 'logo' + '.png" /></div>';
+						profile += '<div id="profile-pic"><img src="/static/img/profile_pic/' + data.id + '.png" alt="[No Picture]"/></div>';
 						profile += '<div id="profile-name">'+ data.first_name + ' ' + data.last_name + ' (' + data.gender +')</div>';
 						profile += '<div id="profile-info">'+ data.specialty + '<br />' + data.address + ' , ' + data.city + '<br />'+ data.email + '<br />' + data.phone +'</div>';
 						profile += '<div id="profile-hours">'+ data.hours +'</div>';
-						profile += '<div id="profile-contact"><input class="button-primary" type="button" value="Contact" name="Contact"></div>';
+
+						if (localStorage.getItem('contacted_'+data.id)){
+							profile += '<div id="profile-contact"><input class="button-outline" type="button" value="Already Contacted" name="Contact" style="cursor: default"></div>';
+						} else {
+							profile += '<div id="profile-contact"><input class="button-primary" type="button" value="Contact" name="Contact"></div>';
+						}
 
 						$('#profile').html(profile);
 						$('#listing').hide();
@@ -41,6 +46,12 @@
 							$('#listing').show();
 						});
 
+						$('#profile-contact .button-primary').click(function(){
+							localStorage.setItem('contacted_'+data.id, true);
+							$(this).parent().html('<input class="button-outline" type="button" value="Successfully Contacted" name="Contact" style="cursor: default">');
+						})
+
+						
 
 					});
 				});
@@ -64,15 +75,22 @@
 				$("#basic-search-button").click(function(){
 					$('#profile-back').click();
 				
+					params = '';
+
 					var name = $('#name').val();
 				   	var city = $('#city').val();
+
+					if (name != '')
+						params += "&city="+name;
+					if (city != '')
+						params += "&city="+city;
+
 				    $.get("/search?name="+name+"&city="+city, function(data){
 				    	display_results(data);
 				    });
 				});
 
 				$("#advanced-search-button").click(function(){
-					
 					$('#profile-back').click();
 				
 					var params = '';
