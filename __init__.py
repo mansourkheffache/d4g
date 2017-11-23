@@ -16,7 +16,7 @@ DATABASE = os.path.dirname(os.path.realpath(__file__)) + '/final.db'
 #     if db is not None:
 #         db.close()
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__)
 
 @app.route("/")
 def hello():
@@ -122,10 +122,5 @@ def view(id):
 
 	return jsonify(dentist_profile)
 
-# User routes
-
-#	/						homepage, with a search box and result display
-
-# API routes
-#	GET		/search			search the database with dentist params
-#	GET		/view			given dentist ID, load more info
+if __name__ == "__main__":
+    app.run()
