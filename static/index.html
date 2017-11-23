@@ -4,34 +4,110 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>PERCCOM TeamOslo</title>
-		<link rel="stylesheet" href="/static/css/milligram.min.css?2">
+		<link rel="stylesheet" href="/static/css/milligram.min.css?211">
 		<script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
 		<!-- <script type="text/javascript" src="js/main.js?5"></script> -->
 		<script>
 
+			function display_results(data) {
+				var rows = '';
+		        for (var i = 0; i < data.length; ++i) {
+		        	entry = '';
+		        	entry += '<td>' + data[i].first_name + ' ' +  data[i].last_name + '</td>';
+		        	entry += '<td>' + data[i].address + ' , ' +  data[i].city + '</td>';
+		        	rows += '<tr class="dentist-row" id="'+ data[i].id +'">' + entry + '</tr>';
+		        }
+
+		        $('#results-count').html('<b>'+data.length + '</b> Dentists found')
+		        $('#listing tbody').html(rows);
+
+				$(".dentist-row").click(function(){
+					$.get('/view/'+$(this).attr('id'), function(data){
+
+						var profile = '';
+						profile += '<a href="#"><div id="profile-back">< Back</div></a>'
+						profile += '<div id="profile-pic"><img src="/static/img/' + 'logo' + '.png" /></div>';
+						profile += '<div id="profile-name">'+ data.first_name + ' ' + data.last_name + ' (' + data.gender +')</div>';
+						profile += '<div id="profile-info">'+ data.specialty + '<br />' + data.address + ' , ' + data.city + '<br />'+ data.email + '<br />' + data.phone +'</div>';
+						profile += '<div id="profile-hours">'+ data.hours +'</div>';
+						profile += '<div id="profile-contact"><input class="button-primary" type="button" value="Contact" name="Contact"></div>';
+
+						$('#profile').html(profile);
+						$('#listing').hide();
+						$('#profile').show();
+
+						$('#profile-back').click(function(){
+							$('#profile').hide();
+							$('#listing').show();
+						});
+
+
+					});
+				});
+			}
+
 			$(document).ready(function(){
 				// do something
-				$("#searchButton").click(function(){
-					search();
+				$("#profile").hide();
+				$("#advanced-search").hide();
+
+				$("#goto-basic").click(function(){
+					$("#advanced-search").hide();
+					$("#basic-search").show();
+				});
+
+				$("#goto-advanced").click(function(){
+					$("#basic-search").hide();
+					$("#advanced-search").show();
+				});
+
+				$("#basic-search-button").click(function(){
+					$('#profile-back').click();
+				
+					var name = $('#name').val();
+				   	var city = $('#city').val();
+				    $.get("/search?name="+name+"&city="+city, function(data){
+				    	display_results(data);
+				    });
+				});
+
+				$("#advanced-search-button").click(function(){
+					alert('ha')
+					$('#profile-back').click();
+				
+					var params = '';
+
+					var first = $('#first-name').val();
+					var last = $('#last-name').val();
+				   	var gender = $('#gender').val();
+					var address = $('#address').val();
+					var city = $('#adv-city').val();
+					var specialty = $('#specialty').val();
+					var day = $('#day').val();
+					var time = $('#time').val();
+
+					if (first != '')
+						params += "&first="+first;
+					if (last != '')
+						params += "&last="+last;
+					if (gender != '')
+						params += "&gender="+gender;
+					if (address != '')
+						params += "&address="+address;
+					if (city != '')
+						params += "&city="+city;
+					if (specialty != '')
+						params += "&specialty="+specialty;
+					if (day != '')
+						params += "&day="+day;
+					if (time != '')
+						params += "&time="+time;
+
+				    $.get("/search?"+params, function(data){
+				    	display_results(data);
+				    });
 				});
 			});
-
-			function search(){
-			   var name = $('#name').val();
-			   var city = $('#city').val();
-			    $.get("/search?name="+name+"&city="+city, function(data){
-			    	var rows = '';
-			        for (var i = 0; i < data.length; ++i) {
-			        	entry = '';
-			        	entry += '<td>' + data[i].first_name + ' ' +  data[i].last_name + '</td>';
-			        	entry += '<td>' + data[i].address + ' , ' +  data[i].city + '</td>';
-			        	rows += '<tr>' + entry + '</tr>';
-			        }
-
-			        $('#results-count').html('<b>'+data.length + '</b> Dentists found')
-			        $('#listing tbody').html(rows);
-			    });
-			}
 
 		</script>
 	</head>
@@ -43,17 +119,97 @@
 				</section>
 			</nav>
 
-				<section class="container" id="searchContainer">
-					<fieldset>
-						<input type="text" placeholder="Name" id="name" />
-						<input type="text" placeholder="City" id="city" />
+			<section class="container" id="searchContainer">
+				<fieldset id="basic-search">
+					<input type="text" placeholder="Name" id="name" />
+					<input type="text" placeholder="City" id="city" />
 
-						<div id="searchButton"><input class="button-primary" type="button" value="Search" name="Search"></div>
-					 </fieldset>
-					<div id="results-count">
+					<div id="basic-search-button" style="display: inline-block; margin: 0 1%;"><input class="button-primary" type="button" value="Search" name="Search"></div>
+					<a href="#" id="goto-advanced">Advanced Search</a>
+				 </fieldset>
+				 <fieldset id="advanced-search">
+				 	<div class="row">
+					 	<div class="column column-33"><input type="text" placeholder="First Name" id="first-name" /></div>
+					 	<div class="column column-33"><input type="text" placeholder="Last Name" id="last-name" /></div>
+					 	<div class="column column-33"><select id="gender">
+					 		<option value="" selected>Gender</option>
+					 		<option value="M">Male</option>
+					 		<option value="F">Female</option>
+					 	</select></div>
+					</div>
+
+					<div class="row">
+						<div class="column column-67"><input type="text" placeholder="Street Address" id="address" /></div>
+						<div class="column column-33"><input type="text" placeholder="City" id="adv-city" /></div>
+					</div>
+
+					<div class="row">
+						<div class="column column-33">
+							<select id="specialty">
+						 		<option value="" selected>Specialty</option>
+						 		<option value="Dental Public Health">Dental Public Health</option>
+								<option value="Endodontics">Endodontics</option>
+								<option value="Prosthodontics">Prosthodontics</option>
+								<option value="Oral and Maxillofacial Pathology">Oral and Maxillofacial Pathology</option>
+								<option value="Oral and Maxillofacial Radiology">Oral and Maxillofacial Radiology</option>
+								<option value="Oral and Maxillofacial Surgery">Oral and Maxillofacial Surgery</option>
+								<option value="Orthodontics and Dentofacial Orthopedics">Orthodontics and Dentofacial Orthopedics</option>
+								<option value="Pediatric Dentistry">Pediatric Dentistry</option>
+								<option value="Periodontics">Periodontics</option>
+					 		</select>
+						</div>
+						<div class="column column-33">
+							<select id="day">
+						 		<option value="" selected>Day</option>
+						 		<option value="mon">Monday</option>
+						 		<option value="tue">Tuesday</option>
+						 		<option value="wed">Wednesday</option>
+						 		<option value="thu">Thursday</option>
+						 		<option value="fri">Friday</option>
+					 		</select>
+						</div>
+						<div class="column column-33">
+							<select id="time">
+						 		<option value="" selected>Time</option>
+						 		<option value="0">00:00</option>
+						 		<option value="100">01:00</option>
+						 		<option value="200">02:00</option>
+						 		<option value="300">03:00</option>
+						 		<option value="400">04:00</option>
+						 		<option value="500">05:00</option>
+						 		<option value="600">06:00</option>
+						 		<option value="700">07:00</option>
+						 		<option value="800">08:00</option>
+						 		<option value="900">09:00</option>
+						 		<option value="1000">10:00</option>
+						 		<option value="1100">11:00</option>
+						 		<option value="1200">12:00</option>
+						 		<option value="1300">13:00</option>
+						 		<option value="1400">14:00</option>
+						 		<option value="1500">15:00</option>
+						 		<option value="1600">16:00</option>
+						 		<option value="1700">17:00</option>
+						 		<option value="1800">18:00</option>
+						 		<option value="1900">19:00</option>
+						 		<option value="2000">20:00</option>
+						 		<option value="2100">21:00</option>
+						 		<option value="2200">22:00</option>
+						 		<option value="2300">23:00</option>
+					 		</select>
+						</div>
+					</div>
+
+					<div id="advanced-search-button" style="display: inline-block; margin: 0 1%;"><input class="button-primary" type="button" value="Search" name="Search"></div>
+					<a href="#" id="goto-basic">Basic Search</a>
+				 </fieldset>
+
+
+				<div id="content">
+			  	<div id="listing">
+			  		<div id="results-count">
 						<b>0</b> Dentists Found
 					</div>
-				  	<table id="listing">
+					<table>
 						<thead>
 						  <tr>
 							<th style="width: 30%">Name</th>
@@ -63,7 +219,17 @@
 						<tbody>
 
 						</tbody>
-					 </table>
+					</table>
+				</div>
+
+				<div id="profile">
+					<a href="#"><div id="profile-back">< Back to search results</div></a>
+					<div id="profile-pic"><img src="/static/img/logo.png" /></div>
+					<div id="profile-name"></div>
+					<div id="profile-info"></div>
+					<div id="profile-hours"></div>
+					<div id="profile-contact"><input class="button-outline" type="button" value="Contact" name="Contact"></div>
+				</div>
 			</section>
 		</main>
 	</body>

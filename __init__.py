@@ -67,15 +67,19 @@ def search():
 		if specialty is not None:
 			query = query + " AND specialty='" + specialty + "'"
 		
-		if time is not None:
+		print(time)
+		print(day)
+
+		if time is not None and time is not '':
 			query = query + " AND (1=0"
 			days = ['mon', 'tue', 'wed', 'thu', 'fri'] if (day is None) else [day]
 			for d in days:
 				query = query + " OR (" + d + "1 <= " + time + " AND " + d + "2 >" + time + ")"
 			query = query + ")"
-		elif day is not None:
+		elif day is not None and day is not '':
 			query = query + " AND " + day + "1 IS NOT NULL"
-	
+		
+		print(query)
 
 	with sqlite3.connect(DATABASE) as con:
 		cur = con.cursor()
